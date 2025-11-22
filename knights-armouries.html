@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Royal Armouries – Medieval Knights & Weapons</title>
+  <style>
+    /* Royal Armouries-inspired palette */
+    :root {
+      --steel: #2F3B45;
+      --parchment: #F6F1E4;
+      --crimson: #8B1E2D;
+      --gold: #D4AF37;
+      --text: #1C1C1C;
+      --navy: #0B1D51; /* gentle accent if needed */
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--parchment);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.5;
+    }
+    .site {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-bottom: 64px;
+    }
+    header {
+      background: linear-gradient(0deg, rgba(47,59,69,0.92), rgba(47,59,69,0.92)),
+                  url('banner.jpg') center/cover no-repeat;
+      color: #fff;
+      padding: 56px 24px;
+      position: relative;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      letter-spacing: 0.3px;
+    }
+    header p {
+      margin: 0 0 16px;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+    .ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--crimson);
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 2px solid var(--crimson);
+    }
+    .btn.secondary {
+      background: transparent;
+      color: #fff;
+      border-color: var(--gold);
+    }
+    .section {
+      padding: 24px;
+      margin: 24px;
+      background: #fff;
+      border: 1px solid #e3dcc8;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .section h2 {
+      margin-top: 0;
+      color: var(--steel);
+      font-size: 1.5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+    .grid .col-6 { grid-column: span 6; }
+    .grid .col-12 { grid-column: span 12; }
+
+    /* Interactive armour stage */
+    .stage {
+      position: relative;
+      background: #f4efe1;
+      border: 1px solid #e3dcc8;
+      border-radius: 8px;
+      min-height: 520px;
+      overflow: hidden;
+    }
+    .stage img.base {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Hotspots */
+    .hotspot {
+      position: absolute;
+      width: 36px; height: 36px;
+      background: var(--crimson);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .hotspot:focus {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
+    }
+    .hotspot::after {
+      content: "+";
+      color: #fff;
+      display: block;
+      text-align: center;
+      line-height: 32px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* Tooltip / popover */
+    .popover {
+      position: absolute;
+      max-width: 280px;
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #e3dcc8;
+      border-radius: 8px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      padding: 12px 12px 12px 12px;
+      transform: translate(-50%, -8px);
+      z-index: 3;
+    }
+    .popover h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: var(--steel);
+    }
+    .popover p {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+    .popover .media {
+      width: 100%;
+      height: 140px;
+      background: #ddd;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .popover .close {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--crimson);
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* Challenge */
+    .challenge {
+      background: #fff9e6;
+      border: 1px solid #f1e2b6;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .challenge h3 {
+      margin-top: 0;
+      color: #7a5b00;
+      font-size: 1.1rem;
+    }
+    .sequence {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .chip {
+      background: var(--gold);
+      color: #000;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .status {
+      margin-top: 8px;
+      font-weight: 700;
+    }
+    .status.ok { color: #0a7a27; }
+    .status.err { color: #b00020; }
+    .reset {
+      margin-top: 8px;
+      background: var(--steel);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Footer note */
+    footer {
+      padding: 16px 24px 48px;
+      color: #5b5b5b;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: repeat(6, 1fr); }
+      .grid .col-6 { grid-column: span 6; }
+    }
+  </style>
+</head>
+<body>
+  <div class="site" role="main">
+    <!-- Hero -->
+    <header aria-label="Hero banner: Medieval Knights & Weapons">
+      <h1>Medieval Knights & Weapons at the Royal Armouries</h1>
+      <p>Discover the arms, armour, and stories of medieval warriors. Tap hotspots to uncover the secrets of battle gear.</p>
+      <div class="ctas" role="navigation" aria-label="Primary actions">
+        <a class="btn" href="#interactive">Explore Armour & Weapons</a>
+        <a class="btn secondary" href="#knight">Life of a Knight</a>
+        <a class="btn secondary" href="#visit">Plan Your Visit</a>
+      </div>
+    </header>
+
+    <!-- Interactive Armour & Weapons -->
+    <section id="interactive" class="section" aria-labelledby="interactive-title">
+      <h2 id="interactive-title">Interactive Armour & Weapons</h2>
+      <div class="grid">
+        <div class="col-12">
+          <p>Tap the hotspots to learn about each part. Complete the Battle Readiness Challenge by arming the knight in the correct order.</p>
+        </div>
+        <div class="col-12">
+          <div class="stage" id="stage" aria-label="Interactive armour stage">
+            <!-- Base image (replace with your asset) -->
+            <img class="base" src="knight-base.jpg" alt="Illustrated medieval knight surrounded by armour and weapons" />
+
+            <!-- Hotspots: positions are examples; adjust to your base image -->
+            <button class="hotspot" aria-label="Helmet hotspot" data-id="helmet" style="left: 52%; top: 16%;"></button>
+            <button class="hotspot" aria-label="Breastplate hotspot" data-id="breastplate" style="left: 50%; top: 35%;"></button>
+            <button class="hotspot" aria-label="Gauntlets hotspot" data-id="gauntlets" style="left: 64%; top: 48%;"></button>
+            <button class="hotspot" aria-label="Sword hotspot" data-id="sword" style="left: 70%; top: 65%;"></button>
+            <button class="hotspot" aria-label="Shield hotspot" data-id="shield" style="left: 35%; top: 58%;"></button>
+            <button class="hotspot" aria-label="Crossbow hotspot" data-id="crossbow" style="left: 20%; top: 70%;"></button>
+
+            <!-- Popovers are injected here -->
+          </div>
+        </div>
+
+        <!-- Battle Readiness Challenge -->
+        <div class="col-12">
+          <div class="challenge" aria-live="polite">
+            <h3>Battle Readiness Challenge</h3>
+            <p>Arm the knight in the correct sequence:</p>
+            <div class="sequence" aria-label="Required sequence">
+              <span class="chip">Helmet</span>
+              <span class="chip">Breastplate</span>
+              <span class="chip">Gauntlets</span>
+              <span class="chip">Sword</span>
+              <span class="chip">Shield</span>
+            </div>
+            <div id="challenge-status" class="status" aria-live="polite"></div>
+            <button class="reset" id="reset-seq" type="button">Reset challenge</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Life of a Knight (linear overview block) -->
+    <section id="knight" class="section" aria-labelledby="knight-title">
+      <h2 id="knight-title">Life of a Medieval Knight</h2>
+      <div class="grid">
+        <div class="col-12">
+          <p>Follow the journey from squire to knight: training and discipline, armour preparation, battle tactics, and the ceremony of knighthood.</p>
+        </div>
+        <div class="col-6">
+          <h3>Storyboard beats</h3>
+          <ul>
+            <li>Training: daily routines and discipline.</li>
+            <li>Armouring up: donning chainmail and plate.</li>
+            <li>Battle: tactics, teamwork, risks.</li>
+            <li>Knighthood: oaths and responsibilities.</li>
+          </ul>
+        </div>
+        <div class="col-6">
+          <!-- Placeholder video box; replace with embed in Sites or host a video -->
+          <div class="popover media" aria-hidden="true">Linear video embed placeholder (MP4/YouTube)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Plan your visit -->
+    <section id="visit" class="section" aria-labelledby="visit-title">
+      <h2 id="visit-title">Plan Your Visit</h2>
+      <p>Find opening times, tickets, and accessibility information on the Royal Armouries Leeds website.</p>
+      <p>
+        <a class="btn" href="https://royalarmouries.org/leeds" target="_blank" rel="noopener">Visit Royal Armouries Leeds</a>
+      </p>
+      <div class="popover media" aria-hidden="true">Map embed placeholder</div>
+    </section>
+
+    <footer>
+      Designed for the Royal Armouries Museum. Accessible design with alt text, captions, and keyboard navigation.
+    </footer>
+  </div>
+
+  <audio id="sfx-metal" src="metal-clank.mp3" preload="auto"></audio>
+  <audio id="sfx-bow" src="crossbow.mp3" preload="auto"></audio>
+  <audio id="sfx-swing" src="sword-swing.mp3" preload="auto"></audio>
+
+  <script>
+    // Data model for hotspots
+    const HOTSPOTS = {
+      helmet: {
+        title: "Helmet & Visor",
+        text: "Protects the head; the visor raises for breathing and sight.",
+        media: "Helmet close-up or short visor animation",
+        sound: "sfx-metal"
+      },
+      breastplate: {
+        title: "Breastplate",
+        text: "Rigid plate shielding chest and vital organs.",
+        media: "Breastplate detail image",
+        sound: "sfx-metal"
+      },
+      gauntlets: {
+        title: "Gauntlets",
+        text: "Articulated finger protection for weapon handling.",
+        media: "Hand movement animation",
+        sound: "sfx-metal"
+      },
+      sword: {
+        title: "Knight’s Sword",
+        text: "Forged steel; balanced for reach, control, and cutting.",
+        media: "Short sword swing animation",
+        sound: "sfx-swing"
+      },
+      shield: {
+        title: "Shield & Heraldry",
+        text: "Deflects blows; emblazoned with a knight’s coat of arms.",
+        media: "Heraldic designs gallery",
+        sound: "sfx-metal"
+      },
+      crossbow: {
+        title: "Crossbow",
+        text: "High force projectile; slow reload, powerful impact.",
+        media: "Loading animation + bolt release",
+        sound: "sfx-bow"
+      }
+    };
+
+    // Challenge sequence
+    const REQUIRED_SEQ = ["helmet", "breastplate", "gauntlets", "sword", "shield"];
+    let progressSeq = [];
+
+    const stage = document.getElementById('stage');
+    const statusEl = document.getElementById('challenge-status');
+    const resetBtn = document.getElementById('reset-seq');
+
+    function playSound(id) {
+      const el = document.getElementById(id);
+      if (el) { el.currentTime = 0; el.play().catch(()=>{}); }
+    }
+
+    function closePopovers() {
+      stage.querySelectorAll('.popover').forEach(p => p.remove());
+    }
+
+    function showPopover(id, x, y) {
+      const data = HOTSPOTS[id];
+      if (!data) return;
+      closePopovers();
+      const pop = document.createElement('div');
+      pop.className = 'popover';
+      pop.style.left = x + 'px';
+      pop.style.top = y + 'px';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-label', data.title);
+
+      pop.innerHTML = `
+        <h3>${data.title}</h3>
+        <p>${data.text}</p>
+        <div class="media" aria-hidden="true">${data.media}</div>
+        <span class="close" role="button" tabindex="0">Close</span>
+      `;
+      stage.appendChild(pop);
+      const closeBtn = pop.querySelector('.close');
+      closeBtn.addEventListener('click', closePopovers);
+      closeBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') closePopovers(); });
+
+      if (data.sound) playSound(data.sound);
+    }
+
+    function updateChallenge(id) {
+      // If already complete, ignore further inputs
+      if (progressSeq.length >= REQUIRED_SEQ.length) return;
+
+      progressSeq.push(id);
+      // Compare current progress
+      for (let i = 0; i < progressSeq.length; i++) {
+        if (progressSeq[i] !== REQUIRED_SEQ[i]) {
+          statusEl.textContent = "Try again — knights armour in a specific order.";
+          statusEl.className = "status err";
+          return;
+        }
+      }
+      if (progressSeq.length === REQUIRED_SEQ.length) {
+        statusEl.textContent = "Ready for battle! You armed the knight correctly.";
+        statusEl.className = "status ok";
+        // Optional: trigger a simple celebratory effect
+        confetti(stage);
+      } else {
+        statusEl.textContent = "Good – keep going...";
+        statusEl.className = "status ok";
+      }
+    }
+
+    // Simple confetti effect (lightweight, no external deps)
+    function confetti(container) {
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div');
+        p.style.position = 'absolute';
+        p.style.width = '6px';
+        p.style.height = '10px';
+        p.style.background = i % 2 ? '#D4AF37' : '#8B1E2D';
+        p.style.left = (Math.random() * container.clientWidth) + 'px';
+        p.style.top = '-10px';
+        p.style.opacity = '0.9';
+        container.appendChild(p);
+        const dur = 2000 + Math.random() * 1000;
+        const tx = Math.random() * 80 - 40;
+        const ty = container.clientHeight + 20;
+        p.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 0.9 },
+          { transform: `translate(${tx}px, ${ty}px) rotate(${Math.random()*360}deg)`, opacity: 0 }
+        ], { duration: dur, easing: 'linear' }).onfinish = () => p.remove();
+      }
+    }
+
+    // Bind hotspots
+    stage.querySelectorAll('.hotspot').forEach(h => {
+      h.addEventListener('click', (e) => {
+        const id = h.dataset.id;
+        const rect = stage.getBoundingClientRect();
+        const hx = h.offsetLeft + h.offsetWidth / 2;
+        const hy = h.offsetTop;
+        showPopover(id, hx, hy);
+        updateChallenge(id);
+      });
+      h.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          h.click();
+        }
+      });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      progressSeq = [];
+      statusEl.textContent = "Sequence reset. Start with the Helmet.";
+      statusEl.className = "status";
+      closePopovers();
+    });
+  </script>
+</body>
+</html>
